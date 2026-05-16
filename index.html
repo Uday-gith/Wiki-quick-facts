@@ -3,41 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wiki Quick Facts</title>
+  <title>Commons Leaderboard Tool</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>Wiki Quick Facts</h1>
-    
-    <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search a topic (e.g., Mars, Marie Curie)">
-      <button id="searchBtn">Search</button>
-    </div>
 
-    <!-- Status Messages -->
-    <div id="loading" class="hidden text-muted">Searching the web...</div>
-    <div id="errorMessage" class="hidden text-error"></div>
+  <header class="top-header">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Wiki_s_Lazy_Coders_logo_small_transparent.png/1280px-Wiki_s_Lazy_Coders_logo_small_transparent.png" alt="Wiki's Lazy Coders Logo" class="logo">
+    <h1>Commons Leaderboard Tool</h1>
+  </header>
 
-    <!-- The Results Card -->
-    <div id="resultCard" class="card hidden">
-      <div class="card-header">
-        <img id="resultImage" src="" alt="Topic Thumbnail">
-        <div>
-          <h2 id="resultTitle">Title</h2>
-          <a id="wikiLink" href="" target="_blank">Read full article ↗</a>
-        </div>
-      </div>
+  <main class="main-content">
+    <div class="card">
+      <p>Generate contribution rankings for any Wikimedia Commons category instantly.</p>
       
-      <p id="resultSummary" class="summary-text"></p>
-      
-      <div class="facts-section">
-        <h3>Quick Facts</h3>
-        <ul id="factsList"></ul>
-      </div>
+      <form id="leaderboardForm" class="input-group">
+        <input 
+          type="text" 
+          id="categoryInput" 
+          value="Category:Images from Khajuraho Dance Festival 2026" 
+          placeholder="Enter a Wikimedia Commons category..." 
+          required
+        >
+        <button type="submit" id="generateBtn">Generate</button>
+      </form>
     </div>
-  </div>
+  </main>
 
-  <script src="app.js"></script>
+  <footer class="bottom-footer">
+    <p>Created by <a href="#" class="footer-link">Uday Dongre</a></p>
+    <p>Project: <a href="#" class="footer-link">Wiki's Lazy Coders</a> | Updated on: 31 March 2026</p>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
