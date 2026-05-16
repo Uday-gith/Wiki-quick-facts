@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiki Quick Facts</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Wiki Quick Facts</h1>
+    
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search a topic (e.g., Mars, Marie Curie)">
+      <button id="searchBtn">Search</button>
+    </div>
+
+    <!-- Status Messages -->
+    <div id="loading" class="hidden text-muted">Searching the web...</div>
+    <div id="errorMessage" class="hidden text-error"></div>
+
+    <!-- The Results Card -->
+    <div id="resultCard" class="card hidden">
+      <div class="card-header">
+        <img id="resultImage" src="" alt="Topic Thumbnail">
+        <div>
+          <h2 id="resultTitle">Title</h2>
+          <a id="wikiLink" href="" target="_blank">Read full article ↗</a>
+        </div>
+      </div>
+      
+      <p id="resultSummary" class="summary-text"></p>
+      
+      <div class="facts-section">
+        <h3>Quick Facts</h3>
+        <ul id="factsList"></ul>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
