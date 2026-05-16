@@ -3,38 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Commons Leaderboard Tool</title>
+  <title>Wiki Quick Facts</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
   <header class="top-header">
     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Wiki_s_Lazy_Coders_logo_small_transparent.png/1280px-Wiki_s_Lazy_Coders_logo_small_transparent.png" alt="Wiki's Lazy Coders Logo" class="logo">
-    <h1>Commons Leaderboard Tool</h1>
+    <h1>Wiki Quick Facts</h1>
   </header>
 
   <main class="main-content">
     <div class="card">
-      <p>Generate contribution rankings for any Wikimedia Commons category instantly.</p>
+      <p class="description">Search any topic to instantly see its Wikipedia summary and key Wikidata facts.</p>
       
-      <form id="leaderboardForm" class="input-group">
+      <div class="input-group">
+        <select id="langSelect">
+          <option value="en">English</option>
+          <option value="hi">हिन्दी (Hindi)</option>
+          <option value="es">Español (Spanish)</option>
+          <option value="fr">Français (French)</option>
+          <option value="de">Deutsch (German)</option>
+          <option value="ja">日本語 (Japanese)</option>
+        </select>
         <input 
           type="text" 
-          id="categoryInput" 
-          value="Category:Images from Khajuraho Dance Festival 2026" 
-          placeholder="Enter a Wikimedia Commons category..." 
-          required
+          id="searchInput" 
+          placeholder="e.g., Mars, Marie Curie..." 
         >
-        <button type="submit" id="generateBtn">Generate</button>
-      </form>
+        <button id="searchBtn">Search</button>
+      </div>
+
+      <div id="loading" class="hidden text-muted">Searching the knowledge base...</div>
+      <div id="errorMessage" class="hidden text-error"></div>
+
+      <div id="resultArea" class="result-area hidden">
+        <hr class="divider">
+        
+        <div class="result-header">
+          <img id="resultImage" src="" alt="Topic Thumbnail">
+          <div class="result-title-group">
+            <h2 id="resultTitle">Title</h2>
+            <a id="wikiLink" href="" target="_blank" class="wiki-link">Read full article ↗</a>
+          </div>
+        </div>
+        
+        <p id="resultSummary" class="summary-text"></p>
+        
+        <div class="facts-section">
+          <h3>Quick Facts</h3>
+          <ul id="factsList"></ul>
+        </div>
+      </div>
+
     </div>
   </main>
 
   <footer class="bottom-footer">
     <p>Created by <a href="#" class="footer-link">Uday Dongre</a></p>
-    <p>Project: <a href="#" class="footer-link">Wiki's Lazy Coders</a> | Updated on: 31 March 2026</p>
+    <p>Project: <a href="#" class="footer-link">Wiki's Lazy Coders</a></p>
   </footer>
 
-  <script src="script.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
