@@ -1,43 +1,124 @@
 // DOM Elements
-const leaderboardForm = document.getElementById('leaderboardForm');
-const categoryInput = document.getElementById('categoryInput');
-const generateBtn = document.getElementById('generateBtn');
+const langSelect = document.getElementById('langSelect');
+const searchInput = document.getElementById('searchInput');
+const searchBtn = document.getElementById('searchBtn');
+const loadingText = document.getElementById('loading');
+const errorMessage = document.getElementById('errorMessage');
+const resultArea = document.getElementById('resultArea');
 
-// Event Listener for Form Submission
-leaderboardForm.addEventListener('submit', async function(event) {
-  // Prevent the default page reload
-  event.preventDefault();
-  
-  const categoryName = categoryInput.value.trim();
-  
-  // Do nothing if the input is empty
-  if (!categoryName) return;
+const resultImage = document.getElementById('resultImage');
+const resultTitle = document.getElementById('resultTitle');
+const wikiLink = document.getElementById('wikiLink');
+const resultSummary = document.getElementById('resultSummary');
+const factsList = document.getElementById('factsList');
 
-  // 1. Set UI to Loading State
-  const originalBtnText = generateBtn.textContent;
-  generateBtn.textContent = 'Generating...';
-  generateBtn.disabled = true;
-  generateBtn.style.cursor = 'not-allowed';
-  generateBtn.style.opacity = '0.7';
+// Event Listeners
+searchBtn.addEventListener('click', handleSearch);
+searchInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') handleSearch();
+});
+
+async function handleSearch() {
+  const topic = searchInput.value.trim();
+  const lang = langSelect.value;
+  
+  if (!topic) return;
+
+  // Set UI to Loading State
+  errorMessage.classList.add('hidden');
+  resultArea.classList.add('hidden');
+  loadingText.classList.remove('hidden');
+  
+  const originalBtnText = searchBtn.textContent;
+  searchBtn.textContent = 'Searching...';
+  searchBtn.disabled = true;
 
   try {
-    console.log(`Initiating leaderboard generation for: ${categoryName}`);
+    const data = await fetchTopicData(topic, lang); 
     
-    // Simulate a network request delay (1.5 seconds)
-    // TODO: Replace this Promise block with your actual backend fetch() call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Placeholder success action
-    alert(`Backend connection ready for:\n${categoryName}\n\n(Replace this alert with your data rendering logic)`);
+    if (!data) {
+      throw new Error(`Could not find information on "${topic}" in the selected language.`);
+    }
 
+    renderData(topic, data, lang); 
+    
   } catch (error) {
-    console.error("Error generating leaderboard:", error);
-    alert("There was an error connecting to the server. Please try again.");
+    errorMessage.textContent = error.message;
+    errorMessage.classList.remove('hidden');
   } finally {
-    // 2. Restore UI to Default State
-    generateBtn.textContent = originalBtnText;
-    generateBtn.disabled = false;
-    generateBtn.style.cursor = 'pointer';
-    generateBtn.style.opacity = '1';
+    // Restore UI State
+    loadingText.classList.add('hidden');
+    searchBtn.textContent = originalBtnText;
+    searchBtn.disabled = false;
   }
-});
+}
+
+async function fetchTopicData(topic, lang = 'en') {
+  // Step 1: Wikipedia API
+  const wikiUrl = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(topic)}`;
+  const wikiResponse = await fetch(wikiUrl);
+  
+  if (!wikiResponse.ok) return null;
+  
+  const wikiData = await wikiResponse.json();
+  const summary = wikiData.extract;
+  const thumbnail = wikiData.thumbnail ? wikiData.thumbnail.source : null;
+  const qid = wikiData.wikibase_item;
+
+  if (!qid) return { summary, thumbnail, facts: [] };
+
+  // Step 2: Wikidata SPARQL
+  const sparqlQuery = `
+    SELECT ?propertyLabel ?valueLabel WHERE {
+      wd:${qid} ?propUrl ?value .
+      ?property wikibase:directClaim ?propUrl .
+      FILTER (isIRI(?value))
+      SERVICE wikibase:label { bd:serviceParam wikibase:language "${lang},en". }
+    } LIMIT 5
+  `;
+  
+  const wikidataUrl = `https://query.wikidata.org/sparql?query=${encodeURIComponent(sparqlQuery)}&format=json`;
+  const wikidataResponse = await fetch(wikidataUrl, {
+    headers: { 'Accept': 'application/sparql-results+json' }
+  });
+  
+  const wikidataJson = await wikidataResponse.json();
+  const facts = wikidataJson.results.bindings.map(b => ({
+    property: b.propertyLabel.value,
+    value: b.valueLabel.value
+  }));
+
+  return { summary, thumbnail, facts, pageId: wikiData.titles.canonical };
+}
+
+function renderData(originalTopic, data, lang) {
+  // Set Title and Link
+  resultTitle.textContent = data.pageId ? data.pageId.replace(/_/g, ' ') : originalTopic;
+  wikiLink.href = `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(data.pageId || originalTopic)}`;
+
+  // Set Summary
+  resultSummary.textContent = data.summary;
+
+  // Set Image
+  if (data.thumbnail) {
+    resultImage.src = data.thumbnail;
+    resultImage.style.display = 'block';
+  } else {
+    resultImage.style.display = 'none';
+  }
+
+  // Set Facts
+  factsList.innerHTML = ''; 
+  if (data.facts && data.facts.length > 0) {
+    data.facts.forEach(fact => {
+      const li = document.createElement('li');
+      li.innerHTML = `<strong>${fact.property}</strong> <span>${fact.value}</span>`;
+      factsList.appendChild(li);
+    });
+  } else {
+    factsList.innerHTML = '<li>No quick facts available.</li>';
+  }
+
+  // Show the card
+  resultArea.classList.remove('hidden');
+}
